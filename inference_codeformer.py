@@ -23,7 +23,7 @@ def set_realesrgan():
     use_half = False
     if torch.cuda.is_available(): # set False in CPU/MPS mode
         no_half_gpu_list = ['1650', '1660'] # set False for GPUs that don't support f16
-        if not True in [gpu in torch.cuda.get_device_name(0) for gpu in no_half_gpu_list]:
+        if not any(gpu in torch.cuda.get_device_name(0) for gpu in no_half_gpu_list):
             use_half = True
 
     model = RRDBNet(
