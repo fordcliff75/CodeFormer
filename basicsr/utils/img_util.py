@@ -105,10 +105,10 @@ def tensor2img_fast(tensor, rgb2bgr=True, min_max=(0, 1)):
     """
     output = tensor.squeeze(0).detach().clamp_(*min_max).permute(1, 2, 0)
     output = (output - min_max[0]) / (min_max[1] - min_max[0]) * 255
-    output = output.type(torch.uint8).cpu().numpy()
+    output = output.round().to(torch.uint8)
     if rgb2bgr:
-        output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
-    return output
+        output = output[..., [2, 1, 0]]
+    return output.cpu().numpy()
 
 
 def imfrombytes(content, flag='color', float32=False):
