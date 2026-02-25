@@ -212,7 +212,7 @@ class RealESRGANer():
                 if img_mode == 'L':
                     output_img = cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY)
             del output_img_t
-            torch.cuda.empty_cache()        
+            # Removed torch.cuda.empty_cache() to avoid unnecessary synchronization and allow memory reuse
         except RuntimeError as error:
             print(f"Failed inference for RealESRGAN: {error}")      
 
