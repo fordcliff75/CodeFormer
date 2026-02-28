@@ -1,0 +1,3 @@
+## 2024-05-24 - [Optimize Tensor Conversion for Inference]
+**Learning:** transferring large float32 tensors from the GPU to the CPU before converting them to images is a bottleneck.
+**Action:** switch inference scripts to use `tensor2img_fast`, where scaling, rounding, and casting to `uint8` are performed on the GPU. This reduces the CPU-GPU memory transfer bandwidth by 75% (1 byte per value instead of 4), resulting in a clear performance win. Note that I needed to fix `tensor2img_fast` first by adding a `.round()` call, because it was missing it before, meaning the float-to-int conversion would simply truncate, leading to slightly inaccurate pixel values.
