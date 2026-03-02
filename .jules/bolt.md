@@ -1,0 +1,3 @@
+## 2024-05-24 - Remove torch.cuda.empty_cache() in loops
+**Learning:** Calling `torch.cuda.empty_cache()` inside loops forces global GPU synchronization and releases memory to the OS, preventing the PyTorch caching allocator from efficiently reusing memory. This creates a significant performance bottleneck.
+**Action:** Remove `torch.cuda.empty_cache()` calls from inference loops in `inference_codeformer.py`, `inference_inpainting.py`, `inference_colorization.py`, and `basicsr/utils/realesrgan_utils.py` to allow PyTorch to manage memory efficiently.
