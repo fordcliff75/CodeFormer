@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 output_face = (1-mask)*input_face + mask*output_face
                 save_face = tensor2img(output_face, rgb2bgr=True, min_max=(-1, 1))
             del output_face
-            torch.cuda.empty_cache()
+            # Bolt: Removing torch.cuda.empty_cache() to avoid global GPU synchronization and allow efficient memory reuse by PyTorch's caching allocator.
         except Exception as error:
             print(f'\tFailed inference for CodeFormer: {error}')
             save_face = tensor2img(input_face, rgb2bgr=True, min_max=(-1, 1))
