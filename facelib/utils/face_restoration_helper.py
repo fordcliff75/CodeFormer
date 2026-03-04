@@ -464,10 +464,9 @@ class FaceRestoreHelper(object):
                     out = self.face_parse(face_input)[0]
                 out = out.argmax(dim=1).squeeze().cpu().numpy()
 
-                parse_mask = np.zeros(out.shape)
-                MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
-                for idx, color in enumerate(MASK_COLORMAP):
-                    parse_mask[out == idx] = color
+                # Performance optimization: use vectorized numpy indexing instead of iterative mapping
+                MASK_COLORMAP = np.array([0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0], dtype='float32')
+                parse_mask = MASK_COLORMAP[out]
                 #  blur the mask
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
