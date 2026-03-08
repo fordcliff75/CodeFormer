@@ -1,0 +1,3 @@
+## 2024-03-08 - GPU-side Tensor to Image Optimization
+**Learning:** Performing scaling, rounding, and casting to uint8 for single-image tensors on the GPU side before transferring to the CPU is significantly faster than using `tensor2img`. The `tensor2img_fast` function performs these operations using `.round()` on the GPU.
+**Action:** When working on similar projects utilizing PyTorch and requiring frequent tensor to image conversions, particularly in inference scripts, prefer utilizing GPU-side post-processing where appropriate to maintain optimal performance. Always remember to add `.round()` prior to casting to `torch.uint8` to avoid accuracy regressions compared to CPU-side `tensor2img`.
