@@ -1,0 +1,3 @@
+## 2024-05-24 - Avoid Empty Cache & Fast Tensor2Img
+**Learning:** Calling `torch.cuda.empty_cache()` inside the inference loops forces global GPU synchronization and defeats the PyTorch caching allocator, slowing down inference. Post-processing tensors directly on the GPU using `tensor2img_fast` (with scaling, `.round()`, and casting to uint8 before transferring to CPU) is significantly faster than transferring raw float tensors and processing on CPU.
+**Action:** Remove `torch.cuda.empty_cache()` from critical loop paths. Always export and use `tensor2img_fast` for processing single-image tensors across inference scripts to maintain optimal performance. Add `.round()` in `tensor2img_fast` before casting to uint8 to match `tensor2img` visual quality.
