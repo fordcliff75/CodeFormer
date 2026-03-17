@@ -4,7 +4,7 @@ import argparse
 import glob
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img_fast, tensor2img
 from basicsr.utils.download_util import load_file_from_url
 from basicsr.utils.misc import get_device
 from basicsr.utils.registry import ARCH_REGISTRY
@@ -65,19 +65,18 @@ if __name__ == '__main__':
         input_face = input_face.unsqueeze(0).to(device)
         try:
             with torch.no_grad():
-                mask = torch.zeros(512, 512)
+                mask = torch.zeros(512, 512, device=device)
                 m_ind = torch.sum(input_face[0], dim=0)
                 mask[m_ind==3] = 1.0
-                mask = mask.view(1, 1, 512, 512).to(device)
+                mask = mask.view(1, 1, 512, 512)
                 # w is fixed to 1, adain=False for inpainting
                 output_face = net(input_face, w=1, adain=False)[0]
                 output_face = (1-mask)*input_face + mask*output_face
-                save_face = tensor2img(output_face, rgb2bgr=True, min_max=(-1, 1))
+                save_face = tensor2img_fast(output_face, rgb2bgr=True, min_max=(-1, 1))
             del output_face
-            torch.cuda.empty_cache()
         except Exception as error:
             print(f'\tFailed inference for CodeFormer: {error}')
-            save_face = tensor2img(input_face, rgb2bgr=True, min_max=(-1, 1))
+            save_face = tensor2img_fast(input_face, rgb2bgr=True, min_max=(-1, 1))
 
         save_face = save_face.astype('uint8')
 
