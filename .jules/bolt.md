@@ -1,0 +1,6 @@
+## 2026-03-18 - [Optimize inference scripts by removing empty_cache and switching to fast tensor2img]
+**Learning:** Calling `torch.cuda.empty_cache()` inside inference processing loops triggers an expensive GPU-to-CPU synchronization and stalls the pipeline, making it a notorious anti-pattern for performance. Replacing  with  runs normalization and type conversion natively on the GPU before transferring to CPU as a smaller uint8 array.
+**Action:** When working on PyTorch applications, avoid using `torch.cuda.empty_cache()` inside loops and prefer to do tensor operations (like scaling and casting) on the GPU before moving to the CPU to reduce PCIe bus overhead.
+## 2026-03-18 - [Optimize inference scripts by removing empty_cache and switching to fast tensor2img]
+**Learning:** Calling torch.cuda.empty_cache() inside inference processing loops triggers an expensive GPU-to-CPU synchronization and stalls the pipeline, making it a notorious anti-pattern for performance. Replacing tensor2img with tensor2img_fast runs normalization and type conversion natively on the GPU before transferring to CPU as a smaller uint8 array.
+**Action:** When working on PyTorch applications, avoid using torch.cuda.empty_cache() inside loops and prefer to do tensor operations (like scaling and casting) on the GPU before moving to the CPU to reduce PCIe bus overhead.
