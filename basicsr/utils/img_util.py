@@ -104,8 +104,9 @@ def tensor2img_fast(tensor, rgb2bgr=True, min_max=(0, 1)):
         min_max (tuple[int]): min and max values for clamp.
     """
     output = tensor.squeeze(0).detach().clamp_(*min_max).permute(1, 2, 0)
+    # Scaling and rounding on the GPU before sending to CPU reduces PCIe data transfer by 4x
     output = (output - min_max[0]) / (min_max[1] - min_max[0]) * 255
-    output = output.type(torch.uint8).cpu().numpy()
+    output = output.round().type(torch.uint8).cpu().numpy()
     if rgb2bgr:
         output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
     return output
