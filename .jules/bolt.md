@@ -1,0 +1,3 @@
+## 2024-05-18 - Inference Post-Processing Bottleneck
+**Learning:** PyTorch inference scripts (`inference_codeformer.py`, `inference_inpainting.py`, `inference_colorization.py`) were clearing the CUDA cache inside their main processing loops using `torch.cuda.empty_cache()`. This forced global GPU synchronization and prevented the memory allocator from efficiently caching blocks. Additionally, `tensor2img` was being used for post-processing single images which runs on CPU after transferring 32-bit floats.
+**Action:** Replace `tensor2img` with the faster `tensor2img_fast` and remove `torch.cuda.empty_cache()` inside the inference loops for continuous workloads.
