@@ -4,7 +4,7 @@ import argparse
 import glob
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img_fast
 from basicsr.utils.download_util import load_file_from_url
 from basicsr.utils.misc import gpu_is_available, get_device
 from facelib.utils.face_restoration_helper import FaceRestoreHelper
@@ -203,12 +203,13 @@ if __name__ == '__main__':
             try:
                 with torch.no_grad():
                     output = net(cropped_face_t, w=w, adain=True)[0]
-                    restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
+                    # ⚡ Bolt: use tensor2img_fast for performance
+                    restored_face = tensor2img_fast(output, rgb2bgr=True, min_max=(-1, 1))
                 del output
-                torch.cuda.empty_cache()
+                # ⚡ Bolt: removed torch.cuda.empty_cache() to preserve PyTorch caching allocator and prevent global GPU synchronization
             except Exception as error:
                 print(f'\tFailed inference for CodeFormer: {error}')
-                restored_face = tensor2img(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))
+                restored_face = tensor2img_fast(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))
 
             restored_face = restored_face.astype('uint8')
             face_helper.add_restored_face(restored_face, cropped_face)
