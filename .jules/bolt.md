@@ -1,0 +1,1 @@
+## 2024-05-24 - Tensor2img Fast\n**Learning:** tensor2img_fast is slightly faster than tensor2img because it performs operations more efficiently for (1, c, h, w) shapes and only supports this shape.\n**Action:** Use tensor2img_fast instead of tensor2img in inference scripts for speedup.
