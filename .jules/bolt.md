@@ -1,0 +1,7 @@
+## 2024-04-09 - PyTorch Caching Allocator and `empty_cache()` Anti-Pattern
+**Learning:** Calling `torch.cuda.empty_cache()` inside hot loops (like inference loops) is a significant performance anti-pattern. It forces CPU-GPU synchronization and forces PyTorch's caching allocator to release memory back to the OS. On the next iteration, PyTorch must request memory from the OS again, which is extremely slow.
+**Action:** Always look for and remove `torch.cuda.empty_cache()` calls within iterative processes or loops. Rely on `del` or variable reassignment to free up memory blocks internally within PyTorch so the caching allocator can efficiently reuse them.
+
+## 2024-04-09 - `tensor2img` Post-Processing Bottleneck
+**Learning:** `tensor2img` functions often iterate over batches using list comprehensions and execute `.clamp_()`, `.detach()`, `.cpu()`, and type casting. For unbatched inference (shape `(1, C, H, W)`), a specialized `tensor2img_fast` that directly permutes and scales without list overhead provides a measurable speedup. Furthermore, to avoid regressions, it must accurately handle 3D inputs (by conditionally applying `squeeze(0)`) and use `.round()` before casting to `uint8` to avoid truncation.
+**Action:** Prefer `tensor2img_fast` over `tensor2img` in single-image inference scripts, but ensure it correctly handles dimensions to avoid stripping channels and explicitly rounds values to preserve image quality.
