@@ -1,0 +1,3 @@
+## 2024-05-18 - Avoid empty_cache and move tensor post-processing to GPU
+**Learning:** Calling `torch.cuda.empty_cache()` inside processing loops forces a full, global GPU synchronization which destroys pipeline overlap and needlessly releases cached allocations, causing severe performance degradation. Additionally, using CPU for standard tensor-to-image conversions (rounding, clamping) causes an excessive amount of memory to be sent across the PCIe bus (4x overhead relative to `uint8` images).
+**Action:** Replace `tensor2img` with `tensor2img_fast` across critical inference pathways to process the mapping from floats to `uint8` explicitly on the GPU before retrieving to the CPU, and rigorously remove all instances of `torch.cuda.empty_cache()` within internal loops.
