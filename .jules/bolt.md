@@ -1,0 +1,3 @@
+## 2026-04-13 - [Refactor manual append loops to list comprehensions]
+**Learning:** Refactoring manual loops that perform geometric calculations or list appends (e.g., face area or center distance calculations) to list comprehensions in Python (specifically in `facelib/utils/face_restoration_helper.py`) yields significant performance gains (~4%-38% improvement in micro-benchmarks). It avoids the overhead of repeated method lookups and function calls for `append`.
+**Action:** Always prefer list comprehensions over manual append loops when building simple lists from calculations, as they are cleaner and more efficient.
