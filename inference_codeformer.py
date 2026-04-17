@@ -205,7 +205,7 @@ if __name__ == '__main__':
                     output = net(cropped_face_t, w=w, adain=True)[0]
                     restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
                 del output
-                torch.cuda.empty_cache()
+                # torch.cuda.empty_cache() removed: forces global GPU synchronization and slows down execution
             except Exception as error:
                 print(f'\tFailed inference for CodeFormer: {error}')
                 restored_face = tensor2img(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))

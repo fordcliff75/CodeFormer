@@ -49,7 +49,7 @@ if __name__ == '__main__':
             restored_img = np.concatenate([img, output], axis=1)
             restored_img = output
         del output
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache() removed: forces global GPU synchronization and slows down execution
 
         path = os.path.splitext(os.path.join(save_root, img_name))[0]
         save_path = f'{path}.png'
