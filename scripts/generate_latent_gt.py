@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 x, feat_dict = vqgan.encoder(img, True)
                 x, _, log = vqgan.quantize(x)
             # del output
-            torch.cuda.empty_cache()
+            # torch.cuda.empty_cache() removed: forces global GPU synchronization and slows down execution
 
             min_encoding_indices = log['min_encoding_indices']
             min_encoding_indices = min_encoding_indices.view(size_latent,size_latent)
