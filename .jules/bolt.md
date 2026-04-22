@@ -1,0 +1,3 @@
+## 2024-06-15 - Fast tensor image processing
+**Learning:** `tensor2img_fast` was erroneously truncating image tensors during float-to-uint8 conversion (instead of rounding), which silently degraded image quality in optimized paths. Additionally, it stripped necessary channels if dimensions weren't strictly (1, c, h, w) where `c` was 1, leading to regressions when single-channel images were used or 3D tensors were fed.
+**Action:** Always ensure optimized fast paths (like `tensor2img_fast`) accurately mirror the logical data transformations (like `.round()`) of their slower counter-parts, and conditionally check tensor dimensions (`if tensor.dim() == ...`) before unconditionally squeezing.
