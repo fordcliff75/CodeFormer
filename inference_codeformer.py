@@ -4,7 +4,7 @@ import argparse
 import glob
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img_fast as tensor2img
 from basicsr.utils.download_util import load_file_from_url
 from basicsr.utils.misc import gpu_is_available, get_device
 from facelib.utils.face_restoration_helper import FaceRestoreHelper
