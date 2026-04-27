@@ -1,0 +1,3 @@
+## 2024-04-27 - [Optimize min/max searches with pure-Python loops]
+**Learning:** For minimum/maximum distance or area calculations (e.g., finding the nearest center or largest face), computing pure-Python squared distance (dx**2 + dy**2) or bounds in a single-pass loop is significantly faster (~10x for center, ~2x for area) than instantiating NumPy arrays (`np.linalg.norm()`) or allocating lists and using `max()` inside loops.
+**Action:** Avoid intermediate allocations (lists, numpy arrays) and function call overhead (`max()`, `min()`, `np.linalg.norm`) in tight Python loops by tracking max/min values inline.
