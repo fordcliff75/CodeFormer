@@ -16,37 +16,37 @@ dlib_model_url = {
 }
 
 def get_largest_face(det_faces, h, w):
+    largest_idx = 0
+    max_area = 0
 
-    def get_location(val, length):
-        if val < 0:
-            return 0
-        elif val > length:
-            return length
-        else:
-            return val
+    for idx, det_face in enumerate(det_faces):
+        left = det_face[0]
+        left = 0 if left < 0 else (w if left > w else left)
+        right = det_face[2]
+        right = 0 if right < 0 else (w if right > w else right)
+        top = det_face[1]
+        top = 0 if top < 0 else (h if top > h else top)
+        bottom = det_face[3]
+        bottom = 0 if bottom < 0 else (h if bottom > h else bottom)
 
-    face_areas = []
-    for det_face in det_faces:
-        left = get_location(det_face[0], w)
-        right = get_location(det_face[2], w)
-        top = get_location(det_face[1], h)
-        bottom = get_location(det_face[3], h)
         face_area = (right - left) * (bottom - top)
-        face_areas.append(face_area)
-    largest_idx = face_areas.index(max(face_areas))
+        if face_area > max_area:
+            max_area = face_area
+            largest_idx = idx
+
     return det_faces[largest_idx], largest_idx
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        cx, cy = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
+        cx, cy = w / 2, h / 2
+
+    center_dist = [
+        ((det_face[0] + det_face[2]) / 2 - cx) ** 2 + ((det_face[1] + det_face[3]) / 2 - cy) ** 2
+        for det_face in det_faces
+    ]
     center_idx = center_dist.index(min(center_dist))
     return det_faces[center_idx], center_idx
 
