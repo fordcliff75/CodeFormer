@@ -16,38 +16,43 @@ dlib_model_url = {
 }
 
 def get_largest_face(det_faces, h, w):
+    largest_idx = 0
+    max_area = 0
+    for idx, det_face in enumerate(det_faces):
+        # inline bounds checking is faster than calling a helper function
+        # or using max()/min() built-ins
+        v0 = det_face[0]
+        left = 0 if v0 < 0 else (w if v0 > w else v0)
+        v2 = det_face[2]
+        right = 0 if v2 < 0 else (w if v2 > w else v2)
+        v1 = det_face[1]
+        top = 0 if v1 < 0 else (h if v1 > h else v1)
+        v3 = det_face[3]
+        bottom = 0 if v3 < 0 else (h if v3 > h else v3)
 
-    def get_location(val, length):
-        if val < 0:
-            return 0
-        elif val > length:
-            return length
-        else:
-            return val
-
-    face_areas = []
-    for det_face in det_faces:
-        left = get_location(det_face[0], w)
-        right = get_location(det_face[2], w)
-        top = get_location(det_face[1], h)
-        bottom = get_location(det_face[3], h)
-        face_area = (right - left) * (bottom - top)
-        face_areas.append(face_area)
-    largest_idx = face_areas.index(max(face_areas))
+        area = (right - left) * (bottom - top)
+        if area > max_area:
+            max_area = area
+            largest_idx = idx
     return det_faces[largest_idx], largest_idx
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        cx, cy = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
-    center_idx = center_dist.index(min(center_dist))
+        cx, cy = w / 2, h / 2
+
+    center_idx = 0
+    min_dist = float('inf')
+    for idx, det_face in enumerate(det_faces):
+        # Calculate squared Euclidean distance to avoid np.array instantiation
+        # and np.linalg.norm overhead
+        dist = ((det_face[0] + det_face[2]) / 2 - cx) ** 2 + ((det_face[1] + det_face[3]) / 2 - cy) ** 2
+        if dist < min_dist:
+            min_dist = dist
+            center_idx = idx
+
     return det_faces[center_idx], center_idx
 
 
