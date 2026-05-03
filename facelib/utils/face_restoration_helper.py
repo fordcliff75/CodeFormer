@@ -16,38 +16,44 @@ dlib_model_url = {
 }
 
 def get_largest_face(det_faces, h, w):
+    largest_idx = -1
+    max_area = -1
+    for i, f in enumerate(det_faces):
+        val = f[0] if f[0] >= 0 else 0
+        left = w if val > w else val
 
-    def get_location(val, length):
-        if val < 0:
-            return 0
-        elif val > length:
-            return length
-        else:
-            return val
+        val = f[2] if f[2] >= 0 else 0
+        right = w if val > w else val
 
-    face_areas = []
-    for det_face in det_faces:
-        left = get_location(det_face[0], w)
-        right = get_location(det_face[2], w)
-        top = get_location(det_face[1], h)
-        bottom = get_location(det_face[3], h)
-        face_area = (right - left) * (bottom - top)
-        face_areas.append(face_area)
-    largest_idx = face_areas.index(max(face_areas))
+        val = f[1] if f[1] >= 0 else 0
+        top = h if val > h else val
+
+        val = f[3] if f[3] >= 0 else 0
+        bottom = h if val > h else val
+
+        area = (right - left) * (bottom - top)
+        if area > max_area:
+            max_area = area
+            largest_idx = i
     return det_faces[largest_idx], largest_idx
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        cx, cy = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
-    center_idx = center_dist.index(min(center_dist))
+        cx, cy = w / 2, h / 2
+
+    min_dist = float('inf')
+    center_idx = -1
+    for i, f in enumerate(det_faces):
+        fcx = (f[0] + f[2]) / 2.0
+        fcy = (f[1] + f[3]) / 2.0
+        dist_sq = (fcx - cx) ** 2 + (fcy - cy) ** 2
+        if dist_sq < min_dist:
+            min_dist = dist_sq
+            center_idx = i
+
     return det_faces[center_idx], center_idx
 
 
