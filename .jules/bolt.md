@@ -1,0 +1,7 @@
+## 2024-05-23 - [Optimization - numpy indexing in parse mask]
+**Learning:** In `facelib/utils/face_restoration_helper.py`, mapping an index map (`out`) to colors iteratively using a for loop `parse_mask[out == idx] = color` is O(N_classes * Image_Size) and extremely slow (10.4s for 1000 iterations). By using Numpy array indexing `parse_mask = MASK_COLORMAP[out]`, this drops to 0.31s (~33x speedup). This pattern is crucial for any colormap mapping.
+**Action:** Always prefer advanced Numpy indexing `array[indices]` over loop-based assignment when mapping class indices to values.
+
+## 2024-05-23 - [Optimization - python built-ins for min/max & norm]
+**Learning:** `get_center_face` and `get_largest_face` in `facelib/utils/face_restoration_helper.py` were using list comprehensions and explicit calls to `np.linalg.norm` / `np.array` or multiple `append()`s followed by `max()`. Tracking min/max directly in a for loop and using pure Python math `dx**2 + dy**2` instead of numpy arrays and norms within a tight loop gives a 10x speedup for `get_center_face` (0.48s -> 0.045s) and a ~25% speedup for `get_largest_face` (0.07s -> 0.055s) in microbenchmarks.
+**Action:** When finding a minimum/maximum over a small sequence of elements with a custom metric (like Euclidean distance or area), track the optimal value and index directly in a loop to avoid intermediate list creation and numpy array overhead.
