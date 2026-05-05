@@ -16,38 +16,47 @@ dlib_model_url = {
 }
 
 def get_largest_face(det_faces, h, w):
+    largest_idx = 0
+    max_area = -1
 
-    def get_location(val, length):
-        if val < 0:
-            return 0
-        elif val > length:
-            return length
-        else:
-            return val
+    for idx, det_face in enumerate(det_faces):
+        left = det_face[0] if det_face[0] >= 0 else 0
+        left = w if left > w else left
 
-    face_areas = []
-    for det_face in det_faces:
-        left = get_location(det_face[0], w)
-        right = get_location(det_face[2], w)
-        top = get_location(det_face[1], h)
-        bottom = get_location(det_face[3], h)
+        right = det_face[2] if det_face[2] >= 0 else 0
+        right = w if right > w else right
+
+        top = det_face[1] if det_face[1] >= 0 else 0
+        top = h if top > h else top
+
+        bottom = det_face[3] if det_face[3] >= 0 else 0
+        bottom = h if bottom > h else bottom
+
         face_area = (right - left) * (bottom - top)
-        face_areas.append(face_area)
-    largest_idx = face_areas.index(max(face_areas))
+        if face_area > max_area:
+            max_area = face_area
+            largest_idx = idx
+
     return det_faces[largest_idx], largest_idx
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        center_x, center_y = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
-    center_idx = center_dist.index(min(center_dist))
+        center_x, center_y = w / 2, h / 2
+
+    center_idx = 0
+    min_dist = float('inf')
+
+    for idx, det_face in enumerate(det_faces):
+        dx = (det_face[0] + det_face[2]) / 2 - center_x
+        dy = (det_face[1] + det_face[3]) / 2 - center_y
+        dist = dx ** 2 + dy ** 2
+        if dist < min_dist:
+            min_dist = dist
+            center_idx = idx
+
     return det_faces[center_idx], center_idx
 
 
@@ -464,10 +473,8 @@ class FaceRestoreHelper(object):
                     out = self.face_parse(face_input)[0]
                 out = out.argmax(dim=1).squeeze().cpu().numpy()
 
-                parse_mask = np.zeros(out.shape)
-                MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
-                for idx, color in enumerate(MASK_COLORMAP):
-                    parse_mask[out == idx] = color
+                MASK_COLORMAP = np.array([0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0], dtype=np.float32)
+                parse_mask = MASK_COLORMAP[out]
                 #  blur the mask
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
