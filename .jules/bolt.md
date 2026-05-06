@@ -1,0 +1,3 @@
+## 2024-05-24 - [Vectorized Advanced Indexing for Mask Mapping]
+**Learning:** [In `facelib/utils/face_restoration_helper.py`, creating a boolean mask iteratively for 19 facial classes via `parse_mask[out == idx] = color` creates an O(N_classes * Image_Size) bottleneck in the post-processing phase. NumPy advanced indexing (`np.array(MASK_COLORMAP)[out]`) is a safe, exact equivalent that reduces this to O(Image_Size), leveraging C-level vectorization.]
+**Action:** [When mapping integer classification outputs (like face parsing logic) to a colormap or property array in Python, immediately refactor manual Python enumeration loops to single-step advanced indexing (`array[indices]`), ensuring the mapped output retains the correct precision (`dtype`).]
