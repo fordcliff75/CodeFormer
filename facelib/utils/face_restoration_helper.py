@@ -16,38 +16,36 @@ dlib_model_url = {
 }
 
 def get_largest_face(det_faces, h, w):
+    largest_idx = -1
+    max_area = -1
+    for idx, det_face in enumerate(det_faces):
+        x0 = det_face[0] if det_face[0] >= 0 else 0
+        left = w if x0 > w else x0
+        x2 = det_face[2] if det_face[2] >= 0 else 0
+        right = w if x2 > w else x2
+        y0 = det_face[1] if det_face[1] >= 0 else 0
+        top = h if y0 > h else y0
+        y2 = det_face[3] if det_face[3] >= 0 else 0
+        bottom = h if y2 > h else y2
 
-    def get_location(val, length):
-        if val < 0:
-            return 0
-        elif val > length:
-            return length
-        else:
-            return val
-
-    face_areas = []
-    for det_face in det_faces:
-        left = get_location(det_face[0], w)
-        right = get_location(det_face[2], w)
-        top = get_location(det_face[1], h)
-        bottom = get_location(det_face[3], h)
-        face_area = (right - left) * (bottom - top)
-        face_areas.append(face_area)
-    largest_idx = face_areas.index(max(face_areas))
+        area = (right - left) * (bottom - top)
+        if area > max_area:
+            max_area = area
+            largest_idx = idx
     return det_faces[largest_idx], largest_idx
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        cx, cy = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
-    center_idx = center_dist.index(min(center_dist))
+        cx, cy = w / 2, h / 2
+
+    center_dist_sq = [
+        (((det_face[0] + det_face[2]) / 2) - cx)**2 + (((det_face[1] + det_face[3]) / 2) - cy)**2
+        for det_face in det_faces
+    ]
+    center_idx = center_dist_sq.index(min(center_dist_sq))
     return det_faces[center_idx], center_idx
 
 
