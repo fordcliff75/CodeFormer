@@ -1,0 +1,3 @@
+## 2024-10-09 - [Performance Optimization: Fast Tensor-to-Image Conversion]
+**Learning:** The `tensor2img` function has high overhead for single-image conversions due to slow looping and `make_grid` overhead. Replacing it with `tensor2img_fast` skips these steps, improving latency. Furthermore, the existing `tensor2img_fast` was lacking `.round()` which caused truncation instead of rounding, altering image quality relative to `tensor2img`. It also unconditionally squeezed dimension 0, which breaks if `c=1`.
+**Action:** When migrating from `tensor2img` to `tensor2img_fast`, ensure `tensor2img_fast` employs proper `.round()` calls before casting to `uint8` and uses conditional dimension squeezing.
