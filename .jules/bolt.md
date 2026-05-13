@@ -1,0 +1,3 @@
+## 2024-05-13 - [Performance] Single-pass array allocation and list comprehensions
+**Learning:** Found significant bottlenecks where loops allocating multiple lists or calling heavy functions iteratively per face (`np.linalg.norm` and `MASK_COLORMAP`) caused slowdowns in post processing (`paste_faces_to_input_image`).
+**Action:** Replaced iterative loops computing max and min norms array bounds checking with primitive Math operations and array indexing tracking in single pass `for` loops. Reduced complexity of iterating multiple classes for colormaps to vector O(N) indexing mappings (`np.array(MASK_COLORMAP, dtype=float)[out]`).
