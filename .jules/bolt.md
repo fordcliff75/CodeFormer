@@ -1,0 +1,3 @@
+## 2024-05-18 - Replacing tensor2img with tensor2img_fast
+**Learning:** Replaced the default `tensor2img` with `tensor2img_fast` in inference scripts (for inputs guaranteed to be shape 1,c,h,w) to improve performance by skipping loop overhead and grid layout code. Modified `tensor2img_fast` to add conditional dimension squeezing and rounding to match the quality and robustness of the slower version.
+**Action:** Always verify if a specialized, faster utility exists (like `tensor2img_fast` over `tensor2img`) for single-batch processing in image generation pipelines, and ensure it implements the same quality-critical steps (like rounding before casting) before using it.
