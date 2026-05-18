@@ -1,0 +1,3 @@
+## 2024-05-24 - [Replace tensor2img with tensor2img_fast]
+**Learning:** The `tensor2img` function has overhead from looping and `make_grid` logic. Substituting it with `tensor2img_fast` for single-image conversions significantly improves performance by bypassing these steps.
+**Action:** Replace `tensor2img` with `tensor2img_fast` in `inference_codeformer.py`, `inference_colorization.py`, and `inference_inpainting.py`. Ensure `tensor2img_fast` is correctly implemented and exported in `basicsr/utils/__init__.py`. We must also fix `tensor2img_fast` to conditionally `squeeze(0)` to prevent errors when `c=1` and ensure it uses `.round()` to match `tensor2img` quality.
