@@ -1,0 +1,3 @@
+## 2024-05-22 - [Performance Optimization in Face Parsing]
+**Learning:** In `facelib/utils/face_restoration_helper.py`, mapping face parsing indices to a colormap using an iterative loop (`for idx, color in enumerate(MASK_COLORMAP): parse_mask[out == idx] = color`) takes O(N_classes * Image_Size) time. This can be significantly optimized using NumPy advanced indexing (`MASK_COLORMAP_ARR[out]`), which operates in O(Image_Size) and is vectorized in C, yielding ~25x performance improvement for this specific operation.
+**Action:** Replace iterative loops that map indices to values with NumPy array indexing when the indices represent a finite set of mapping keys, especially for image operations.
