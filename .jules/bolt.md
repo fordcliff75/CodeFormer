@@ -1,0 +1,3 @@
+## 2026-05-24 - [Tensor2img Post-processing Optimization]
+**Learning:** Replaced the generic `tensor2img` function calls in inference scripts with the optimized `tensor2img_fast`. The fast variant performs scaling, clipping, and permuting directly on the GPU tensor before transferring memory and converting to CPU Numpy array, skipping expensive loop iterators and CPU-bound operations found in the standard `tensor2img`. Modified `tensor2img_fast` to handle single channel image generation properly to match output of `tensor2img`.
+**Action:** Identify operations taking place in loops that could run entirely on the device (GPU) using vectorization and device-bound tensors prior to extracting data to the CPU.
