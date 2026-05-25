@@ -466,8 +466,8 @@ class FaceRestoreHelper(object):
 
                 parse_mask = np.zeros(out.shape)
                 MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
-                for idx, color in enumerate(MASK_COLORMAP):
-                    parse_mask[out == idx] = color
+                # ⚡ Bolt Optimization: Use vectorized advanced indexing instead of iterative boolean masking
+                parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]
                 #  blur the mask
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
