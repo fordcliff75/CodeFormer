@@ -1,0 +1,4 @@
+## 2024-10-24 - Optimize Face Parse Mask Generation
+
+**Learning:** When evaluating boolean masks to map semantic segmentation classes to colors, iterating over the unique classes and using boolean masks like `parse_mask[out == idx] = color` creates significant overhead. This essentially evaluates the boolean condition across the entire image `N_classes` times (e.g. 19 times for 19 classes). When the target is an array of mapped values, this is an anti-pattern.
+**Action:** Instead, pre-allocate the colormap as a NumPy array or PyTorch tensor, and use advanced indexing `np.array(MASK_COLORMAP)[out]` where `out` contains the class indices for each pixel. This collapses O(N_classes * Image_Size) boolean mask evaluations into a single O(Image_Size) advanced indexing operation, providing significant speedups for segmentation processing pipelines.
