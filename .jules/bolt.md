@@ -1,0 +1,3 @@
+## 2024-05-19 - Fast Tensor-to-Image Conversion Bypass
+**Learning:** The `tensor2img` utility uses lists and loops even for single tensors, along with complex `make_grid` overhead. Modifying `tensor2img_fast` to properly handle condition dimension logic (`.squeeze(0)` if `tensor.dim() == 4`) and matching output quality (`.round()`) avoids this loop bottleneck.
+**Action:** When working on PyTorch utilities converting tensors to Numpy arrays/images in tight loops, explicitly bypass nested list wrappers and generic array grid builders for standard single-tensor paths. Export fast versions manually if missing from `__init__.py`.
