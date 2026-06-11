@@ -38,16 +38,24 @@ def get_largest_face(det_faces, h, w):
 
 
 def get_center_face(det_faces, h=0, w=0, center=None):
+    # Optimize Euclidean distance tracking using Native python math
     if center is not None:
-        center = np.array(center)
+        cx, cy = center[0], center[1]
     else:
-        center = np.array([w / 2, h / 2])
-    center_dist = []
-    for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
-        dist = np.linalg.norm(face_center - center)
-        center_dist.append(dist)
-    center_idx = center_dist.index(min(center_dist))
+        cx, cy = w / 2, h / 2
+
+    center_idx = -1
+    min_dist_sq = float('inf')
+
+    for i, det_face in enumerate(det_faces):
+        face_cx = (det_face[0] + det_face[2]) / 2
+        face_cy = (det_face[1] + det_face[3]) / 2
+
+        dist_sq = (face_cx - cx)**2 + (face_cy - cy)**2
+        if dist_sq < min_dist_sq:
+            min_dist_sq = dist_sq
+            center_idx = i
+
     return det_faces[center_idx], center_idx
 
 
@@ -464,10 +472,9 @@ class FaceRestoreHelper(object):
                     out = self.face_parse(face_input)[0]
                 out = out.argmax(dim=1).squeeze().cpu().numpy()
 
-                parse_mask = np.zeros(out.shape)
+                # Optimize mask creation using Numpy advanced indexing over loop
                 MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
-                for idx, color in enumerate(MASK_COLORMAP):
-                    parse_mask[out == idx] = color
+                parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]
                 #  blur the mask
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
