@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimize Face Mask Colormap Generation]
+**Learning:** In `facelib/utils/face_restoration_helper.py`, an iterative loop that maps face parsing indices to a colormap introduced significant overhead because it evaluated `out == idx` sequentially against a large (512x512) 2D segmentation array in pure Python.
+**Action:** Replaced the Python loop with C-level NumPy advanced indexing (`parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]`), shifting the performance bottleneck from O(N_classes * Image_Size) to O(Image_Size), significantly boosting model throughput by preventing CPU boundedness.
