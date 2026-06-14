@@ -81,7 +81,7 @@ class FaceRestoreHelper(object):
         elif self.template_3points:
             self.face_template = np.array([[192, 240], [319, 240], [257, 371]])
         else:
-            # standard 5 landmarks for FFHQ faces with 512 x 512 
+            # standard 5 landmarks for FFHQ faces with 512 x 512
             # facexlib
             self.face_template = np.array([[192.98138, 239.94708], [318.90277, 240.1936], [256.63416, 314.01935],
                                            [201.26117, 371.41043], [313.08905, 371.15118]])
@@ -233,7 +233,7 @@ class FaceRestoreHelper(object):
                 landmark = np.array([[bbox[i], bbox[i + 1]] for i in range(5, 15, 2)])
             self.all_landmarks_5.append(landmark)
             self.det_faces.append(bbox[0:5])
-            
+
         if len(self.det_faces) == 0:
             return 0
         if only_keep_largest:
@@ -382,7 +382,7 @@ class FaceRestoreHelper(object):
 
         assert len(self.restored_faces) == len(
             self.inverse_affine_matrices), ('length of restored_faces and affine_matrices are different.')
-        
+
         inv_mask_borders = []
         for restored_face, inverse_affine in zip(self.restored_faces, self.inverse_affine_matrices):
             if face_upsampler is not None:
@@ -464,10 +464,12 @@ class FaceRestoreHelper(object):
                     out = self.face_parse(face_input)[0]
                 out = out.argmax(dim=1).squeeze().cpu().numpy()
 
-                parse_mask = np.zeros(out.shape)
-                MASK_COLORMAP = [0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0]
-                for idx, color in enumerate(MASK_COLORMAP):
-                    parse_mask[out == idx] = color
+                MASK_COLORMAP = [
+                    0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                    255, 255, 0, 255, 0, 0, 0
+                ]
+                # Optimize mask generation with advanced indexing
+                parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]
                 #  blur the mask
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
                 parse_mask = cv2.GaussianBlur(parse_mask, (101, 101), 11)
