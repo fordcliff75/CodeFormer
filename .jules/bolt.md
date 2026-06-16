@@ -1,0 +1,3 @@
+## 2024-05-15 - Optimize NumPy colormap mapping
+**Learning:** During model inference, iterative Python loops executing element-wise checking against large numpy arrays (e.g., 512x512 segmentation maps) introduce significant CPU bottlenecks. Replacing them with C-level NumPy advanced indexing (e.g., using `mask_array[out]` instead of `out == idx` loops) dramatically improves throughput.
+**Action:** Use NumPy advanced indexing instead of standard iterative element-wise conditional loops in Python for mapping class indices to a colormap, reducing time complexity from O(N_classes * Image_Size) to O(Image_Size).
