@@ -96,18 +96,24 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
 
 def tensor2img_fast(tensor, rgb2bgr=True, min_max=(0, 1)):
     """This implementation is slightly faster than tensor2img.
-    It now only supports torch tensor with shape (1, c, h, w).
+    It supports torch tensor with shape (1, c, h, w) or (c, h, w).
 
     Args:
-        tensor (Tensor): Now only support torch tensor with (1, c, h, w).
+        tensor (Tensor): Support torch tensor with (1, c, h, w) or (c, h, w).
         rgb2bgr (bool): Whether to change rgb to bgr. Default: True.
         min_max (tuple[int]): min and max values for clamp.
     """
-    output = tensor.squeeze(0).detach().clamp_(*min_max).permute(1, 2, 0)
+    # ⚡ Bolt Optimization: Use vectorized tensor ops instead of make_grid loop overhead.
+    # Conditional squeeze to handle C=1 correctly, rounding to match tensor2img quality.
+    output = tensor.squeeze(0) if tensor.dim() == 4 else tensor
+    output = output.detach().clamp_(*min_max).permute(1, 2, 0)
     output = (output - min_max[0]) / (min_max[1] - min_max[0]) * 255
-    output = output.type(torch.uint8).cpu().numpy()
-    if rgb2bgr:
-        output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
+    output = output.round().type(torch.uint8).cpu().numpy()
+    if output.shape[2] == 1:
+        output = np.squeeze(output, axis=2)
+    else:
+        if rgb2bgr:
+            output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
     return output
 
 
@@ -168,4 +174,3 @@ def crop_border(imgs, crop_border):
             return [v[crop_border:-crop_border, crop_border:-crop_border, ...] for v in imgs]
         else:
             return imgs[crop_border:-crop_border, crop_border:-crop_border, ...]
-    
