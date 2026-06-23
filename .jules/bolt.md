@@ -1,0 +1,3 @@
+## 2024-05-19 - tensor2img vs tensor2img_fast
+**Learning:** `tensor2img` is significantly slower than `tensor2img_fast` because it uses Python loops and `make_grid` overhead. Replacing it is a fast and easy optimization. However, `tensor2img_fast` originally lacked support for 3D tensors and didn't apply `.round()` before converting to `uint8`, causing off-by-one pixel discrepancies.
+**Action:** When migrating from `tensor2img` to `tensor2img_fast`, ensure the fast implementation correctly handles the dimensionality of the incoming tensor (3D vs 4D) and applies `.round()` to maintain output visual fidelity.
