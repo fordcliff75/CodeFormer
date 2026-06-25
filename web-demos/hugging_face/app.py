@@ -14,7 +14,7 @@ import gradio as gr
 from torchvision.transforms.functional import normalize
 
 from basicsr.archs.rrdbnet_arch import RRDBNet
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img, tensor2img_fast
 from basicsr.utils.download_util import load_file_from_url
 from basicsr.utils.misc import gpu_is_available, get_device
 from basicsr.utils.realesrgan_utils import RealESRGANer
@@ -170,12 +170,12 @@ def inference(image, background_enhance, face_upsample, upscale, codeformer_fide
                     output = codeformer_net(
                         cropped_face_t, w=codeformer_fidelity, adain=True
                     )[0]
-                    restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
+                    restored_face = tensor2img_fast(output, rgb2bgr=True, min_max=(-1, 1))
                 del output
                 torch.cuda.empty_cache()
             except RuntimeError as error:
                 print(f"Failed inference for CodeFormer: {error}")
-                restored_face = tensor2img(
+                restored_face = tensor2img_fast(
                     cropped_face_t, rgb2bgr=True, min_max=(-1, 1)
                 )
 

@@ -5,7 +5,7 @@ import os
 import cv2
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img, tensor2img_fast
 
 from basicsr.utils.registry import ARCH_REGISTRY
 
@@ -44,8 +44,8 @@ if __name__ == '__main__':
         img = img.unsqueeze(0).to(device)
         with torch.no_grad():
             output = vqgan(img)[0]
-            output = tensor2img(output, min_max=[-1,1])
-            img = tensor2img(img, min_max=[-1,1])
+            output = tensor2img_fast(output, min_max=[-1,1])
+            img = tensor2img_fast(img, min_max=[-1,1])
             restored_img = np.concatenate([img, output], axis=1)
             restored_img = output
         del output
