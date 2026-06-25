@@ -15,7 +15,7 @@ except Exception:
     print('please install cog package')
 
 from basicsr.archs.rrdbnet_arch import RRDBNet
-from basicsr.utils import imwrite, img2tensor, tensor2img
+from basicsr.utils import imwrite, img2tensor, tensor2img, tensor2img_fast
 from basicsr.utils.realesrgan_utils import RealESRGANer
 from basicsr.utils.misc import gpu_is_available
 from basicsr.utils.registry import ARCH_REGISTRY
@@ -113,12 +113,12 @@ class Predictor(BasePredictor):
                     output = self.net(
                         cropped_face_t, w=codeformer_fidelity, adain=True
                     )[0]
-                    restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
+                    restored_face = tensor2img_fast(output, rgb2bgr=True, min_max=(-1, 1))
                 del output
                 torch.cuda.empty_cache()
             except Exception as error:
                 print(f"\tFailed inference for CodeFormer: {error}")
-                restored_face = tensor2img(
+                restored_face = tensor2img_fast(
                     cropped_face_t, rgb2bgr=True, min_max=(-1, 1)
                 )
 
