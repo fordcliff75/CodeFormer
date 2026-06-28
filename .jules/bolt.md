@@ -1,0 +1,3 @@
+## 2024-05-20 - tensor2img vs tensor2img_fast Overhead
+**Learning:** The `tensor2img` function has significant performance overhead due to iterating over lists and creating image grids, even when converting single images during inference loops. While `tensor2img_fast` exists to bypass this, it was flawed: it erroneously squeezed the channel dimension if `c=1` and lacked the `.round()` step, leading to differences in quality and causing shape mismatches.
+**Action:** Conditionally squeeze based on tensor dimensionality (`if tensor.dim() == 4: output = tensor.squeeze(0)`), ensure `.round()` is called before `uint8` casting, explicitly handle 1-channel arrays to return 2D, and substitute `tensor2img` with `tensor2img_fast` in inference tight loops.
