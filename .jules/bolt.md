@@ -1,0 +1,3 @@
+## 2024-07-14 - Optimize face parsing mask array creation
+**Learning:** In `facelib/utils/face_restoration_helper.py`, an iterative loop performing element-wise `out == idx` checks against a large 512x512 numpy segmentation map introduces a significant CPU bottleneck. This occurs when applying the `MASK_COLORMAP`, resulting in O(N_classes * Image_Size) time complexity.
+**Action:** Replace iterative boolean mask checking loops with C-level NumPy advanced indexing (e.g., `np.array(MASK_COLORMAP, dtype=float)[out]`). This scales the operation linearly to O(Image_Size) and substantially speeds up array generation while preventing potential float-division type issues downstream.
