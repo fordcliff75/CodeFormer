@@ -1,0 +1,3 @@
+## 2024-07-29 - Vectorized Face Parsing Mask Creation
+**Learning:** In `facelib/utils/face_restoration_helper.py`, iteratively checking equality against a large face parsing segmentation map (e.g., `out == idx` where `out` is 512x512) for each class in the `MASK_COLORMAP` causes a significant CPU bottleneck during model inference due to redundant array allocations and O(N_classes * Image_Size) iterations.
+**Action:** Replace the loop with C-level NumPy advanced indexing (`np.array(MASK_COLORMAP, dtype=float)[out]`), which reduces time complexity to O(Image_Size) and substantially improves execution speed.
