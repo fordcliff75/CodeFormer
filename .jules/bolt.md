@@ -1,0 +1,3 @@
+## 2024-08-07 - [NumPy Advanced Indexing for Colormap Parsing]
+**Learning:** During model inference, iterative Python loops executing element-wise checking against large numpy arrays (e.g., 512x512 segmentation maps) introduce significant CPU bottlenecks. Replacing an iterative loop that maps face parsing indices to a colormap with NumPy advanced indexing (`parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]`) reduces time complexity from O(N_classes * Image_Size) to O(Image_Size) and prevents type issues during subsequent division operations.
+**Action:** Replace iterative boolean mask loops on 2D arrays with direct NumPy advanced indexing arrays to improve throughput.
