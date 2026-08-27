@@ -1,0 +1,3 @@
+## 2024-05-24 - Optimize face parsing mask creation
+**Learning:** In `facelib/utils/face_restoration_helper.py`, creating a face parsing mask uses an iterative Python loop over `MASK_COLORMAP` with element-wise NumPy equality checks (`parse_mask[out == idx] = color`). This introduces significant CPU bottlenecks due to repeated element-wise boolean array creation and masking for each color class, changing the complexity to O(N_classes * Image_Size).
+**Action:** Replace the iterative Python loop with C-level NumPy advanced indexing (`parse_mask = np.array(MASK_COLORMAP, dtype=float)[out]`). This processes the mask in a single vectorized operation, reducing complexity to O(Image_Size) and drastically improving CPU throughput.
